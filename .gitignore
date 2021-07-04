@@ -1,0 +1,7 @@
+/venv/
+/cgi-bin/
+/static/
+/templates/
+/test.py
+/.idea
+/__pycache__/
