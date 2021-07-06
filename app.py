@@ -158,8 +158,7 @@ def get_information(data: dict):
 
 @app.route('/judge/<check_id>/', methods=['POST'])
 def judge(check_id):
-    print(request.get_json(force=True))
-    data = json.loads((request.get_json()))
+    data = json.loads(request.get_json())
     path = os.path.join(DIR, check_id)
     code, input_list, language, output_list, time_limit = get_information(data)
     status = compile_code(path, code, language, input_list[0])
@@ -172,6 +171,17 @@ def judge(check_id):
     elif language == 'python':
         delete_files(path, ['.py'])
     return {"status": overall_status, "judged": True}
+
+
+@app.route('/get_output/<check_id>/', methods=['POST'])
+def just_output(check_id):
+    data = json.loads(request.get_json())
+    path = os.path.join(DIR, check_id)
+    code, input_text, time_limit = data['code'], data['input_text'], data['time_limit']
+    compile_code_cpp(path, code)
+    _, output = get_output(path, input_text, 'c_cpp', time_limit)
+    delete_files(path, [''])
+    return {'output': output}
 
 
 if __name__ == '__main__':
