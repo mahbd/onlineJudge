@@ -2,7 +2,7 @@ import json
 import os
 import re
 
-from flask import Flask, request
+from flask import Flask, request, Response
 
 app = Flask(__name__)
 
@@ -148,19 +148,25 @@ def compile_code(path, code, language, sample):
 
 
 def get_information(data: dict):
-    code = data['code']
-    language = data['language']
-    time_limit = data['time_limit']
-    input_list = data['input_list']
-    output_list = data['output_list']
-    return code, input_list, language, output_list, time_limit
+    try:
+        code = data['code']
+        language = data['language']
+        time_limit = data['time_limit']
+        input_list = data['input_list']
+        output_list = data['output_list']
+        return code, input_list, language, output_list, time_limit, True
+    except KeyError:
+        pass
+    return 'code', 'input_list', 'language', 'output_list', 'time_limit', False
 
 
 @app.route('/judge/<check_id>/', methods=['POST'])
 def judge(check_id):
-    data = json.loads(request.get_json())
+    data = json.loads(request.get_json(force=True))
     path = os.path.join(DIR, check_id)
-    code, input_list, language, output_list, time_limit = get_information(data)
+    code, input_list, language, output_list, time_limit, correct = get_information(data)
+    if not correct:
+        return Response(f'form data: {json.dumps(data)}', status=400, mimetype='application/json')
     status = compile_code(path, code, language, input_list[0])
     if status[0] == 'CE':
         overall_status = [*status, 'Compilation Error']
@@ -175,9 +181,12 @@ def judge(check_id):
 
 @app.route('/get_output/<check_id>/', methods=['POST'])
 def just_output(check_id):
-    data = json.loads(request.get_json())
+    data = json.loads(request.get_json(force=True))
     path = os.path.join(DIR, check_id)
-    code, input_text, time_limit = data['code'], data['input_text'], data['time_limit']
+    try:
+        code, input_text, time_limit = data['code'], data['input_text'], data['time_limit']
+    except KeyError:
+        return Response(f'form data: {json.dumps(data)}', status=400, mimetype='application/json')
     compile_code_cpp(path, code)
     _, output = get_output(path, input_text, 'c_cpp', time_limit)
     delete_files(path, [''])
