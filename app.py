@@ -189,6 +189,8 @@ def just_output(check_id):
         return Response(f'form data: {json.dumps(data)}', status=400, mimetype='application/json')
     compile_code_cpp(path, code)
     _, output = get_output(path, input_text, 'c_cpp', time_limit)
+    if not output:
+        output = "Your input or code is wrong. You got TLE or RE"
     delete_files(path, [''])
     return {'output': output}
 
