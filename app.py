@@ -116,7 +116,7 @@ def check_test_case(path, input_list, output_list, language, time_limit):
 
 def compile_code_cpp(path, code):
     create_files(path, zip(['.cpp', '_err.txt'], [code, '']))
-    if os.system(f'g++ {path}.cpp -o {path} 2> {path}_err.txt') != 0:
+    if os.system(f'timeout 2 g++ {path}.cpp -o {path} 2> {path}_err.txt') != 0:
         with open(f'{path}_err.txt', 'r') as file_err:
             errors = file_err.read()
         delete_files(path, ['.cpp', '_err.txt'])
@@ -127,7 +127,7 @@ def compile_code_cpp(path, code):
 
 def compile_code_python(path, code, sample):
     create_files(path, zip(['.py', '_in.txt', '_err.txt'], [code, sample, '']))
-    stat = os.system(f'timeout {2} python3 {path}.py < {path}_in.txt 2> {path}_err.txt')
+    stat = os.system(f'timeout 2 python3 {path}.py < {path}_in.txt 2> {path}_err.txt')
     if stat != 0:
         with open(f'{path}_err.txt', 'r') as file_err:
             errors = file_err.read()
@@ -181,12 +181,14 @@ def judge(check_id):
 
 @app.route('/get_output/<check_id>/', methods=['POST'])
 def just_output(check_id):
-    data = json.loads(request.get_json(force=True))
+    data = request.get_json(force=True)
+    if type(data) != dict:
+        data = json.loads(data)
     path = os.path.join(DIR, check_id)
     try:
         code, input_text, time_limit, language = data['code'], data['input_text'], data['time_limit'], data['language']
-    except KeyError:
-        return Response(f'form data: {json.dumps(data)}', status=400, mimetype='application/json')
+    except Exception as e:
+        return Response(f'form data: {json.dumps(data)}, message: {e}', status=400, mimetype='application/json')
     status, message = compile_code(path, code, language, input_text)
     if status == 'OK':
         _, output = get_output(path, input_text, language, time_limit)
