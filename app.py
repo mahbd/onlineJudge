@@ -184,11 +184,11 @@ def just_output(check_id):
     data = json.loads(request.get_json(force=True))
     path = os.path.join(DIR, check_id)
     try:
-        code, input_text, time_limit = data['code'], data['input_text'], data['time_limit']
+        code, input_text, time_limit, language = data['code'], data['input_text'], data['time_limit'], data['language']
     except KeyError:
         return Response(f'form data: {json.dumps(data)}', status=400, mimetype='application/json')
-    compile_code_cpp(path, code)
-    _, output = get_output(path, input_text, 'c_cpp', time_limit)
+    compile_code(path, code, language, input_text)
+    _, output = get_output(path, input_text, language, time_limit)
     if not output:
         output = "Your input or code is wrong. You got TLE or RE"
     delete_files(path, [''])
