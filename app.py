@@ -187,8 +187,11 @@ def just_output(check_id):
         code, input_text, time_limit, language = data['code'], data['input_text'], data['time_limit'], data['language']
     except KeyError:
         return Response(f'form data: {json.dumps(data)}', status=400, mimetype='application/json')
-    compile_code(path, code, language, input_text)
-    _, output = get_output(path, input_text, language, time_limit)
+    status, message = compile_code(path, code, language, input_text)
+    if status == 'OK':
+        _, output = get_output(path, input_text, language, time_limit)
+    else:
+        return {'output': f'{status}: {message}'}
     if not output:
         output = "Your input or code is wrong. You got TLE or RE"
     delete_files(path, [''])
