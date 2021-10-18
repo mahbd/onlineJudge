@@ -69,12 +69,11 @@ def check_correctness(correct_output, overall_status, present_output, test_case,
     status = check_output(present_output, correct_output)
     if status[0] == 'WA':
         overall_status[0] = 'WA'
-        print(present_output, correct_output)
         overall_status[1].append([input_text[:200], present_output[:200], correct_output[:200]])
         overall_status[2] = f'Wrong answer on test case {test_case} in line {status[1]}'
     else:
         overall_status[0] = 'AC'
-        overall_status[1].append([present_output[:200], correct_output[:200]])
+        overall_status[1].append([input_text[:200], present_output[:200], correct_output[:200]])
         overall_status[2] = 'Everything looks good'
     overall_status = overall_status
     return overall_status
