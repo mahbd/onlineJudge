@@ -115,7 +115,7 @@ def check_test_case(path, input_list, output_list, language, time_limit):
 
 def compile_code_cpp(path, code):
     create_files(path, zip(['.cpp', '_err.txt'], [code, '']))
-    if os.system(f'timeout 2 g++ {path}.cpp -o {path} 2> {path}_err.txt') != 0:
+    if os.system(f'g++ {path}.cpp -o {path} 2> {path}_err.txt') != 0:
         with open(f'{path}_err.txt', 'r') as file_err:
             errors = file_err.read()
         delete_files(path, ['.cpp', '_err.txt'])
@@ -126,7 +126,7 @@ def compile_code_cpp(path, code):
 
 def compile_code_python(path, code, sample):
     create_files(path, zip(['.py', '_in.txt', '_err.txt'], [code, sample, '']))
-    stat = os.system(f'timeout 2 python3 {path}.py < {path}_in.txt 2> {path}_err.txt')
+    stat = os.system(f'timeout {2} python3 {path}.py < {path}_in.txt 2> {path}_err.txt')
     if stat != 0:
         with open(f'{path}_err.txt', 'r') as file_err:
             errors = file_err.read()
