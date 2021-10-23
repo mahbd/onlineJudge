@@ -105,6 +105,7 @@ def check_test_case(path, input_list, output_list, language, time_limit):
         if status[0] == 'TLE':
             overall_status[0] = 'TLE'
             overall_status[2] = f'Time limit exceed on test case {test_case}'
+            break
         else:
             present_output = status[1]
             overall_status = check_correctness(correct_output, overall_status, present_output, test_case, input_txt)
