@@ -104,6 +104,7 @@ def check_test_case(path, input_list, output_list, language, time_limit):
         status = get_output(path, input_txt, language, time_limit)
         if status[0] == 'TLE':
             overall_status[0] = 'TLE'
+            overall_status[1].append([input_txt[:200], '', ''])
             overall_status[2] = f'Time limit exceed on test case {test_case}'
             break
         else:
